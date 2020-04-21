@@ -11,16 +11,16 @@ package speakeasy
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
 	"strings"
 	"syscall"
 )
 
-const sttyArg0 = "/bin/stty"
-
 var (
 	sttyArgvEOff = []string{"stty", "-echo"}
 	sttyArgvEOn  = []string{"stty", "echo"}
+	sttyArg0     string // set on first use of echoOff()
 )
 
 // getPassword gets input hidden from the terminal from a user. This is
@@ -64,6 +64,13 @@ func getPassword() (password string, err error) {
 
 // echoOff turns off the terminal echo.
 func echoOff(fd []uintptr) (int, error) {
+	if sttyArg0 == "" {
+		s, err := exec.LookPath("stty")
+		if err != nil {
+			return 0, err
+		}
+		sttyArg0 = s
+	}
 	pid, err := syscall.ForkExec(sttyArg0, sttyArgvEOff, &syscall.ProcAttr{Dir: "", Files: fd})
 	if err != nil {
 		return 0, fmt.Errorf("failed turning off console echo for password entry:\n\t%s", err)
