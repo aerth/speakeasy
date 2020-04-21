@@ -36,7 +36,7 @@ func readline() (value string, err error) {
 	for {
 		// read one byte at a time so we don't accidentally read extra bytes
 		n, err = os.Stdin.Read(b)
-		if err != nil && err != io.EOF {
+		if err != nil {
 			return "", err
 		}
 		if n == 0 || b[0] == '\n' {
