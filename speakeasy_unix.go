@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"strings"
 	"syscall"
 )
 
@@ -53,13 +52,10 @@ func getPassword() (password string, err error) {
 	syscall.Wait4(pid, nil, 0, nil)
 
 	line, err := readline()
-	if err == nil {
-		password = strings.TrimSpace(line)
-	} else {
-		err = fmt.Errorf("failed during password entry: %s", err)
+	if err != nil {
+		return "", fmt.Errorf("failed during password entry: %s", err)
 	}
-
-	return password, err
+	return line, nil
 }
 
 // echoOff turns off the terminal echo.
